@@ -7,12 +7,7 @@ load_dotenv()
 
 class DeepSeekTool:
     def __init__(self, api_key: str):
-        self.api_key = api_key.strip()
-        self.api_url = "https://api.deepseek.com/v1/chat/completions"
-        self.headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
-        }
+        self.api_key = api_key
 
     def process_text(self, input_text: str, instruction: str) -> Optional[str]:
         try:
