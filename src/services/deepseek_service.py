@@ -8,7 +8,7 @@ load_dotenv()
 class DeepSeekTool:
     def __init__(self, api_key: str):
         self.api_key = api_key
-        self.api_url = "https://api.deepseek.com/v1/chat/completions"  # Replace with actual DeepSeek API endpoint
+        self.api_url = "https://api.deepseek.com/v1/chat/completions"
         self.headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
@@ -17,7 +17,8 @@ class DeepSeekTool:
     def process_text(self, text: str, instruction: str) -> str:
         try:
             payload = {
-                "model": "deepseek-chat",  # Replace with actual model name
+                "model": "deepseek-chat",
+                "temperature": 0,  # Added temperature parameter
                 "messages": [
                     {"role": "system", "content": instruction},
                     {"role": "user", "content": text}
