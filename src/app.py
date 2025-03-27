@@ -1,27 +1,12 @@
 import streamlit as st
-import os
-from dotenv import load_dotenv
 from services.deepseek_service import DeepSeekTool
 from rich.traceback import install
 install(show_locals=True)
 
-# Load environment variables
-load_dotenv()
-
-# Cache the settings loading to avoid repeated loads
-@st.cache_data
-def get_settings():
-    """Load settings from environment variables."""
-    return {
-        'DEEPSEEK_API_KEY': os.getenv('DEEPSEEK_API_KEY'),
-        'DEEPSEEK_USER': os.getenv('DEEPSEEK_USER'),
-        'DEEPSEEK_PASSWORD': os.getenv('DEEPSEEK_PASSWORD')
-    }
-
-def process_text_with_deepseek(api_key: str, input_text: str, instruction: str) -> str:
+def process_text_with_deepseek(api_key: str, user: str, password: str, input_text: str, instruction: str) -> str:
     """Process text using DeepSeek API with error handling."""
     try:
-        tool = DeepSeekTool(api_key)
+        tool = DeepSeekTool(api_key, user, password)
         result = tool.process_text(input_text, instruction)
         if not result:
             raise ValueError("Empty response received from DeepSeek")
@@ -55,12 +40,13 @@ def main():
 
     st.title("DeepSeek Prompt Tester")
 
-    # Load settings once
-    settings = get_settings()
-    api_key = settings.get('DEEPSEEK_API_KEY')
+    # Get credentials directly from secrets
+    api_key = st.secrets["DEEPSEEK_API_KEY"]
+    user = st.secrets["DEEPSEEK_USER"]
+    password = st.secrets["DEEPSEEK_PASSWORD"]
 
-    if not api_key:
-        st.error("⚠️ API key not found in environment variables")
+    if not all([api_key, user, password]):
+        st.error("⚠️ Credentials not found in secrets")
         st.stop()
 
     # Get input text and validate
@@ -87,7 +73,7 @@ def main():
 
         with st.spinner("Processing your text..."):
             try:
-                result = process_text_with_deepseek(api_key, input_text, instruction)
+                result = process_text_with_deepseek(api_key, user, password, input_text, instruction)
                 st.success("✨ Processing complete!")
                 
                 with st.expander("Show Result", expanded=True):
