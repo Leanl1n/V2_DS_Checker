@@ -3,10 +3,10 @@ from services.deepseek_service import DeepSeekTool
 from rich.traceback import install
 install(show_locals=True)
 
-def process_text_with_deepseek(api_key: str, user: str, password: str, input_text: str, instruction: str) -> str:
+def process_text_with_deepseek(api_key: str, input_text: str, instruction: str) -> str:
     """Process text using DeepSeek API with error handling."""
     try:
-        tool = DeepSeekTool(api_key, user, password)
+        tool = DeepSeekTool(api_key)  # Only pass the API key here
         result = tool.process_text(input_text, instruction)
         if not result:
             raise ValueError("Empty response received from DeepSeek")
@@ -42,11 +42,10 @@ def main():
 
     # Get credentials directly from secrets
     api_key = st.secrets["DEEPSEEK_API_KEY"]
-    user = st.secrets["DEEPSEEK_USER"]
-    password = st.secrets["DEEPSEEK_PASSWORD"]
 
-    if not all([api_key, user, password]):
-        st.error("⚠️ Credentials not found in secrets")
+    # Remove user and password checks since they're not needed
+    if not api_key:
+        st.error("⚠️ API key not found in secrets")
         st.stop()
 
     # Get input text and validate
@@ -73,7 +72,7 @@ def main():
 
         with st.spinner("Processing your text..."):
             try:
-                result = process_text_with_deepseek(api_key, user, password, input_text, instruction)
+                result = process_text_with_deepseek(api_key, input_text, instruction)  # Only pass required arguments
                 st.success("✨ Processing complete!")
                 
                 with st.expander("Show Result", expanded=True):
